@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
@@ -21,7 +22,10 @@ class ProductVariationsListCreateAPIView(ListCreateAPIView):
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist:
             raise ValidationError({'product': 'Неверный ID продукта.'})
-        serializer.save(product=product)
+        try:
+            serializer.save(product=product)
+        except IntegrityError:
+            raise ValidationError("Такое вариант продукта уже есть!")
 
 
 class ProductVariationsUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):

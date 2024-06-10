@@ -31,6 +31,9 @@ class ProductAttribute(models.Model):
     def __str__(self):
         return f"{self.attribute_name} - {self.attribute_value}"
 
+    class Meta:
+        unique_together = (("product", "attribute_name", "attribute_value"),)
+
 
 class ProductImage(models.Model):
     """
@@ -56,6 +59,9 @@ class ProductVariation(models.Model):
 
     def __str__(self):
         return f"{self.product.title} - {self.variation}"
+
+    class Meta:
+        unique_together = (("product", "variation"),)
 
 
 class ProductColor(models.Model):

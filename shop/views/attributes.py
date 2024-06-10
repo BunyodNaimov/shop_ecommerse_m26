@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.http import Http404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError, NotFound
@@ -31,7 +32,10 @@ class ProductAttributeView(ListCreateAPIView):
             raise ValidationError({'product': 'Неверный ID продукта.'})
 
         # Сохранение атрибута, связанного с проверенным продуктом
-        serializer.save(product=product)
+        try:
+            serializer.save(product=product)
+        except IntegrityError:
+            raise ValidationError("Этот аттрибут уже есть!")
 
 
 class ProductAttributeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
