@@ -138,6 +138,15 @@ REST_FRAMEWORK = {
     )
 }
 
-SWAGGER_SETTINGS = {"DEEP_LINKING": True,
-                    'LOGIN_URL': 'rest_framework:login',
-                    'LOGOUT_URL': 'rest_framework:logout'}
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}

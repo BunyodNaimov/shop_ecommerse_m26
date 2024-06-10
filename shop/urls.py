@@ -1,0 +1,46 @@
+from django.urls import path
+
+from shop.views.attributes import ProductAttributeView, ProductAttributeUpdateDeleteView
+from shop.views.categories import CategoryListCreateAPIView
+from shop.views.colors import ProductColorListCreateAPIView, ProductColorUpdateDeleteAPIView
+from shop.views.products import ProductListView, ProductImageView
+from shop.views.reviews import ReviewsListCreateAPIView, ReviewUpdateDeleteAPIView, CommentListCreateAPIView, \
+    CommentUpdateDeleteAPIView, CommentLikeAPIView
+from shop.views.variations import ProductVariationsListCreateAPIView, ProductVariationsUpdateDeleteAPIView
+
+urlpatterns = [
+    # Categories
+    path('categories/', CategoryListCreateAPIView.as_view(), name='categories-list-create'),
+
+    # Products
+    path('products/', ProductListView.as_view(), name='product-list'),
+    path('products/<int:product_id>/images', ProductImageView.as_view(), name='product-images'),
+
+    # Reviews
+    path('products/<int:product_id>/reviews', ReviewsListCreateAPIView.as_view(), name='product-reviews-list'),
+    path('products/<int:product_id>/reviews/<int:review_id>', ReviewUpdateDeleteAPIView.as_view(),
+         name='get-update-delete'),
+    path('reviews/<int:review_id>/comments', CommentListCreateAPIView.as_view(),
+         name='comment-list'),
+    path('reviews/<int:review_id>/comments/<int:comment_id>', CommentUpdateDeleteAPIView.as_view(),
+         name='comment-get-update-delete'),
+    path('reviews/<int:review_id>/comments/<int:comment_id>/like', CommentLikeAPIView.as_view(), name='comment-like'),
+
+    # Product Attributes
+
+    path('products/<int:product_id>/attributes', ProductAttributeView.as_view(), name='attribute-list-create'),
+    path('products/<int:product_id>/attributes/<int:attribute_id>', ProductAttributeUpdateDeleteView.as_view(),
+         name='attribute-get-update-delete'),
+
+    # Product Variations
+
+    path('products/<int:product_id>/variations', ProductVariationsListCreateAPIView.as_view(),
+         name='product-variations-list-create'),
+    path('products/<int:product_id>/variations/<int:variation_id>', ProductVariationsUpdateDeleteAPIView.as_view(),
+         name='product-variations-get-update-delete'),
+
+    # Product Colors
+    path('products/<int:product_id>/colors', ProductColorListCreateAPIView.as_view(), name="product-colors"),
+    path('products/<int:product_id>/colors/<int:color_id>', ProductColorUpdateDeleteAPIView.as_view(),
+         name="product-color-update-delete"),
+]
