@@ -1,10 +1,10 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 
 from shop.models.products import Product, ProductImage
 from shop.serializers.products import ProductListSerializer, ProductImageSerializer
 
 
-class ProductListView(ListAPIView):
+class ProductListView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
 

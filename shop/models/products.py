@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.text import slugify
+from rest_framework.exceptions import ValidationError
 
 
 class Product(models.Model):
@@ -12,6 +14,13 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.price}"
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        product = Product.objects.filter(slug=self.slug).first()
+        if product:
+            raise ValidationError(f"Продукт '{self.title}' уже существует")
+        super(Product, self).save(*args, **kwargs)
 
 
 class ProductAttribute(models.Model):
