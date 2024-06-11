@@ -48,6 +48,12 @@ class ProductAttributeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
         qs = ProductAttribute.objects.filter(product_id=product_id, pk=attribute_id)
         return qs if qs else None
 
+    def perform_update(self, serializer):
+        try:
+            serializer.save()
+        except IntegrityError:
+            raise ValidationError("Этот аттрибут уже есть!")
+
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
