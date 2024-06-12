@@ -24,7 +24,7 @@ class Product(models.Model):
 
 
 class ProductAttribute(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='attributes')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes')
     attribute_name = models.CharField(help_text="Attribute Name", max_length=255)
     attribute_value = models.CharField(max_length=255)
 

@@ -3,7 +3,7 @@ from django.urls import path
 from shop.views.attributes import ProductAttributeView, ProductAttributeUpdateDeleteView
 from shop.views.categories import CategoryListCreateAPIView, CategoryRetrieveUpdateDestroyAPIView
 from shop.views.colors import ProductColorListCreateAPIView, ProductColorUpdateDeleteAPIView
-from shop.views.products import ProductListView, ProductImageView
+from shop.views.products import ProductListCreateView, ProductImageView, ProductGetUpdateDeleteView
 from shop.views.reviews import ReviewsListCreateAPIView, ReviewUpdateDeleteAPIView, CommentListCreateAPIView, \
     CommentUpdateDeleteAPIView, CommentLikeAPIView
 from shop.views.variations import ProductVariationsListCreateAPIView, ProductVariationsUpdateDeleteAPIView
@@ -14,7 +14,8 @@ urlpatterns = [
     path('categories/<int:id>/', CategoryRetrieveUpdateDestroyAPIView.as_view(), name='categories-list-update'),
 
     # Products
-    path('products/', ProductListView.as_view(), name='product-list'),
+    path('products/', ProductListCreateView.as_view(), name='product-list-create'),
+    path('products/<int:id>/', ProductGetUpdateDeleteView.as_view(), name='product-get-update-delete'),
     path('products/<int:product_id>/images', ProductImageView.as_view(), name='product-images'),
 
     # Reviews
