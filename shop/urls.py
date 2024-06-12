@@ -1,7 +1,7 @@
 from django.urls import path
 
 from shop.views.attributes import ProductAttributeView, ProductAttributeUpdateDeleteView
-from shop.views.categories import CategoryListCreateAPIView
+from shop.views.categories import CategoryListCreateAPIView, CategoryRetrieveUpdateDestroyAPIView
 from shop.views.colors import ProductColorListCreateAPIView, ProductColorUpdateDeleteAPIView
 from shop.views.products import ProductListView, ProductImageView
 from shop.views.reviews import ReviewsListCreateAPIView, ReviewUpdateDeleteAPIView, CommentListCreateAPIView, \
@@ -11,6 +11,7 @@ from shop.views.variations import ProductVariationsListCreateAPIView, ProductVar
 urlpatterns = [
     # Categories
     path('categories/', CategoryListCreateAPIView.as_view(), name='categories-list-create'),
+    path('categories/<int:id>/', CategoryRetrieveUpdateDestroyAPIView.as_view(), name='categories-list-update'),
 
     # Products
     path('products/', ProductListView.as_view(), name='product-list'),
