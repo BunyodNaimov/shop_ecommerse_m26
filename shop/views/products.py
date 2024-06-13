@@ -16,9 +16,13 @@ class ProductGetUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     serializer_class = ProductListSerializer
     lookup_field = 'id'
 
-    def get_queryset(self):
-        qs = Product.objects.filter(id=self.kwargs.get('id'))
-        return qs
+    def get_object(self):
+        product_id = self.kwargs.get('id')
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            raise ValidationError("Продукт не найден!")
+        return product
 
     def destroy(self, request, *args, **kwargs):
         obj = Product.objects.filter(id=self.kwargs.get('id'))
