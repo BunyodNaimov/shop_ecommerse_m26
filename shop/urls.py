@@ -29,7 +29,6 @@ urlpatterns = [
     path('reviews/<int:review_id>/comments/<int:comment_id>/like', CommentLikeAPIView.as_view(), name='comment-like'),
 
     # Product Attributes
-
     path('products/<int:product_id>/attributes', ProductAttributeView.as_view(), name='attribute-list-create'),
     path('products/<int:product_id>/attributes/<int:attribute_id>', ProductAttributeUpdateDeleteView.as_view(),
          name='attribute-get-update-delete'),

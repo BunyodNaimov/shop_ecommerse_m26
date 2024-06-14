@@ -14,7 +14,9 @@ class ProductAttributeView(ListCreateAPIView):
     serializer_class = ProductAttributeListCreateSerializer
 
     def get_queryset(self, *args, **kwargs):
-        qs = ProductAttribute.objects.filter(product=self.kwargs['product_id']).all()
+        qs = ProductAttribute.objects.filter(product=self.kwargs['product_id'])
+        if not qs:
+            raise ValidationError("Продукт не найден!")
         return qs
 
     def post(self, request, *args, **kwargs):
@@ -35,7 +37,7 @@ class ProductAttributeView(ListCreateAPIView):
         try:
             serializer.save(product=product)
         except IntegrityError:
-            raise ValidationError("Этот аттрибут уже есть!")
+            raise ValidationError("Этот атрибут уже существует в этом продукте!")
 
 
 class ProductAttributeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
@@ -45,14 +47,21 @@ class ProductAttributeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self, *args, **kwargs):
         product_id = self.kwargs.get('product_id')
         attribute_id = self.kwargs.get('attribute_id')
-        qs = ProductAttribute.objects.filter(product_id=product_id, pk=attribute_id)
-        return qs if qs else None
+        try:
+            Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            raise ValidationError("Продукт не найден!")
+
+        qs = ProductAttribute.objects.filter(product_id=product_id, id=attribute_id)
+        if not qs:
+            raise ValidationError("Атрибуты не найдены!")
+        return qs
 
     def perform_update(self, serializer):
         try:
             serializer.save()
         except IntegrityError:
-            raise ValidationError("Этот аттрибут уже есть!")
+            raise ValidationError("Этот атрибут уже существует в этом продукте!")
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
