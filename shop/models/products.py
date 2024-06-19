@@ -68,3 +68,6 @@ class ProductColor(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="colors")
     color = models.CharField(max_length=255)
     hex_code = models.CharField(max_length=7)
+
+    class Meta:
+        unique_together = ("product", "color")

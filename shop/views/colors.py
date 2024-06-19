@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, DestroyAPIView, RetrieveUpdateDestroyAPIView
@@ -13,17 +14,31 @@ class ProductColorListCreateAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get('product_id')
-        qs = ProductColor.objects.filter(product_id=product_id).all()
+        try:
+            Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            raise ValidationError({'product': 'Неверный ID продукта.'})
+        qs = ProductColor.objects.filter(product_id=product_id)
+        if not qs:
+            raise ValidationError({"colors": "цветов продукта не найден"})
         return qs
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         product_id = self.kwargs.get('product_id')
         try:
             product = Product.objects.get(pk=product_id)
-
         except Product.DoesNotExist:
             raise ValidationError({'product': 'Неверный ID продукта.'})
-        serializer.save(product=product)
+        try:
+            serializer.save(product=product)
+        except IntegrityError:
+            raise ValidationError({"colors": "цвет продукта уже существует!"})
 
 
 class ProductColorUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
@@ -33,8 +48,21 @@ class ProductColorUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         product_id = self.kwargs.get('product_id')
         color_id = self.kwargs.get('color_id')
+
+        try:
+            Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            raise ValidationError({'product': 'Неверный ID продукта.'})
         qs = ProductColor.objects.filter(product_id=product_id, id=color_id)
-        return qs if qs else None
+        if not qs:
+            raise ValidationError({"colors": "цвет продукта не найден"})
+        return qs
+
+    def perform_update(self, serializer):
+        try:
+            serializer.save()
+        except IntegrityError:
+            raise ValidationError({"colors": "цвет продукта уже существует!"})
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
