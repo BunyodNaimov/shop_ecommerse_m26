@@ -15,7 +15,8 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductImageCreateSerializer(ProductImageSerializer):
+    image = serializers.ImageField()
+
     class Meta:
         model = ProductImage
-        fields = ("id", "product")
-        read_only_fields = ("id", "product")
+        fields = ("image", )
