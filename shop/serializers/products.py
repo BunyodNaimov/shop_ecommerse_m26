@@ -2,17 +2,7 @@ from rest_framework import serializers
 
 from shop.models.products import Product, ProductImage
 from shop.serializers.attributes import ProductAttributeListCreateSerializer
-
-
-class ProductImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ProductImage
-        fields = ("id", "product", "image_url")
-
-    def get_image_url(self, obj):
-        return self.context['request'].build_absolute_uri(obj.image.url)
+from shop.serializers.images import ProductImageSerializer
 
 
 class ProductListSerializer(serializers.ModelSerializer):

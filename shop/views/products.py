@@ -4,6 +4,7 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpda
 from rest_framework.response import Response
 
 from shop.models.products import Product, ProductImage
+from shop.serializers.images import ProductImageCreateSerializer
 from shop.serializers.products import ProductListSerializer, ProductImageSerializer
 
 
@@ -30,11 +31,3 @@ class ProductGetUpdateDeleteView(RetrieveUpdateDestroyAPIView):
             self.perform_destroy(obj)
             return Response({"message": "Продукт удалён!"}, status=status.HTTP_200_OK)
         return Response({"message": "Продукт не найден!"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class ProductImageView(ListAPIView):
-    serializer_class = ProductImageSerializer
-
-    def get_queryset(self, *args, **kwargs):
-        product_id = self.kwargs.get("product_id")
-        return ProductImage.objects.filter(product_id=product_id).all()
