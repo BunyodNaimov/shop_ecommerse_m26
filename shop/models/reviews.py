@@ -14,6 +14,9 @@ class Review(models.Model):
     helpful_votes = models.IntegerField(help_text="полезный", default=0)
     unhelpful_votes = models.IntegerField(help_text="бесполезный", default=0)
 
+    class Meta:
+        unique_together = ('author', 'product')
+
 
 class ReviewLikeDislike(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_likes')

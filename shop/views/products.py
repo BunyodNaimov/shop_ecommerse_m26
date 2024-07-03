@@ -3,9 +3,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
-from shop.models.products import Product, ProductImage
-from shop.serializers.images import ProductImageCreateSerializer
-from shop.serializers.products import ProductListSerializer, ProductImageSerializer
+from shop.models.products import Product
+from shop.serializers.products import ProductListSerializer
 
 
 class ProductListCreateView(ListCreateAPIView):
