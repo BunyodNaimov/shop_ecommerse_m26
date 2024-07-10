@@ -6,7 +6,7 @@ from shop.views.colors import ProductColorListCreateAPIView, ProductColorUpdateD
 from shop.views.images import ProductImageListCreateView, ProductImageGetUpdateDeleteView
 from shop.views.products import ProductListCreateView, ProductGetUpdateDeleteView
 from shop.views.reviews import ReviewsListCreateAPIView, ReviewUpdateDeleteAPIView, CommentListCreateAPIView, \
-    CommentUpdateDeleteAPIView, CommentLikeAPIView
+    CommentUpdateDeleteAPIView, CommentLikeDislikeAPIView
 from shop.views.variations import ProductVariationsListCreateAPIView, ProductVariationsUpdateDeleteAPIView
 
 urlpatterns = [
@@ -41,7 +41,8 @@ urlpatterns = [
          name='comment-list'),
     path('reviews/<int:review_id>/comments/<int:comment_id>', CommentUpdateDeleteAPIView.as_view(),
          name='comment-get-update-delete'),
-    path('reviews/<int:review_id>/comments/<int:comment_id>/like', CommentLikeAPIView.as_view(), name='comment-like'),
+    path('reviews/comments/<int:comment_id>/like-dislike', CommentLikeDislikeAPIView.as_view(),
+         name='comment-like-dislike'),
 
     # Product Variations
 

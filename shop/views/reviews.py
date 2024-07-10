@@ -1,12 +1,12 @@
 from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from shop.models.products import Product
-from shop.models.reviews import Review, Comment
+from shop.models.reviews import Review, Comment, CommentLikeDislike
 from shop.serializers.reviews import ReviewListSerializer, ReviewCreateSerializer, CommentListSerializer, \
     CommentCreateSerializer, CommentLikeSerializer
 
@@ -73,12 +73,12 @@ class CommentListCreateAPIView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
-        review = Review.objects.get(id=review_id)
+        review = get_object_or_404(Review, pk=review_id)
         serializer.save(review=review, author=self.request.user)
 
 
 class CommentUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
-    serializer_class = CommentListSerializer
+    serializer_class = CommentCreateSerializer
     lookup_field = 'review_id'
 
     def get_queryset(self):
@@ -87,29 +87,41 @@ class CommentUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         qs = Comment.objects.filter(review_id=review_id, id=comment_id)
         return qs
 
+    def destroy(self, request, *args, **kwargs):
+        obj = get_object_or_404(Comment, pk=kwargs.get('comment_id'))
+        self.perform_destroy(obj)
+        return Response({"message": "Комментарии удалён!"}, status=status.HTTP_200_OK)
 
-class CommentLikeAPIView(CreateAPIView):
+
+class CommentLikeDislikeAPIView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = CommentLikeSerializer
-    lookup_field = 'review_id'
 
     def perform_create(self, serializer):
         comment_id = self.kwargs.get('comment_id')
-        comment = Comment.objects.get(id=comment_id)
+        value = serializer.validated_data['value']
+        comment = get_object_or_404(Comment, pk=comment_id)
+        user = self.request.user
 
-        # Проверяем, есть ли уже лайк от текущего пользователя
-        if CommentLike.objects.filter(comment=comment, author=self.request.user).exists():
-            raise ValidationError("You have already liked this comment.")
+        # Проверка на существование лайка/дизлайка от текущего пользователя
+        existing_vote = CommentLikeDislike.objects.filter(comment=comment, author=user).first()
 
-        # Сохраняем лайк и увеличиваем счетчик лайков у комментария
-        comment.helpful_votes += 1
+        if existing_vote:
+            if existing_vote.value == value:
+                raise ValidationError("Вы уже поставили такую оценку этому комментарию.")
+            else:
+                # Удаляем старый голос и обновляем счетчики
+                if existing_vote.value == 1:
+                    comment.helpful_votes -= 1
+                else:
+                    comment.unhelpful_votes -= 1
+                existing_vote.delete()
+
+        # Сохраняем новый голос и обновляем счетчики
+        if value == 1:
+            comment.helpful_votes += 1
+        else:
+            comment.unhelpful_votes += 1
+
         comment.save()
-        serializer.save(author=self.request.user, comment=comment)
-
-    def perform_create(self, serializer):
-        review_id = self.kwargs.get('review_id')
-        comment_id = self.kwargs.get('comment_id')
-        review = Review.objects.get(id=review_id)
-        comment = Comment.objects.get(id=comment_id)
-        comment.helpful_votes += 1
-        serializer.save(author=self.request.user, review=review)
+        serializer.save(author=user, comment=comment)

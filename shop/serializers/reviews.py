@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shop.models.reviews import Review, Comment
+from shop.models.reviews import Review, Comment, CommentLikeDislike
 
 
 class CommentListSerializer(serializers.ModelSerializer):
@@ -17,19 +17,14 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 
 
 class CommentLikeSerializer(serializers.ModelSerializer):
+    value = serializers.ChoiceField(choices=((1, "Like"), (-1, "Dislike")), required=True)
+
     class Meta:
-        model = Comment
-        fields = ("id", "review", "author", "text", "created_at", "updated_at", "helpful_votes", "unhelpful_votes")
+        model = CommentLikeDislike
+        fields = ("id", "author", "value", "created_at", "updated_at",)
         read_only_fields = (
-            "id", "review", "author", "text", "created_at", "updated_at", "helpful_votes", "unhelpful_votes"
+            "id", "author", "created_at", "updated_at"
         )
-
-
-class CommentDislikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ("id", "review", "author", "text", "created_at", "updated_at", "unhelpful_votes")
-        read_only_fields = ("id", "review", "author", "text", "created_at", "updated_at", "helpful_votes")
 
 
 class ReviewListSerializer(serializers.ModelSerializer):
