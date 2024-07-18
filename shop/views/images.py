@@ -1,4 +1,3 @@
-from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -31,6 +30,8 @@ class ProductImageListCreateView(ListCreateAPIView):
         return qs
 
     def perform_create(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут добавить изображение продукта.')
         product_id = self.kwargs.get("product_id")
         try:
             product = Product.objects.get(id=product_id)
@@ -59,7 +60,14 @@ class ProductImageGetUpdateDeleteView(RetrieveUpdateDestroyAPIView):
             raise ValidationError({"images": "Изображения не найдено"})
         return qs
 
+    def perform_update(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут изменить изображение продукта.')
+        serializer.save()
+
     def destroy(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут удалить изображение продукта.')
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({"delete": "Изображение успешно удалено!"}, status=status.HTTP_200_OK)

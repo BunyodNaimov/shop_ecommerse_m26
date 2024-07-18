@@ -16,10 +16,12 @@ class ProductAttributeView(ListCreateAPIView):
     def get_queryset(self, *args, **kwargs):
         qs = ProductAttribute.objects.filter(product=self.kwargs['product_id'])
         if not qs:
-            raise ValidationError("Продукт не найден!")
+            raise ValidationError("Атрибут не найден!")
         return qs
 
     def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут создавать продукты.')
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -58,12 +60,16 @@ class ProductAttributeUpdateDeleteView(RetrieveUpdateDestroyAPIView):
         return qs
 
     def perform_update(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут изменить продукты.')
         try:
             serializer.save()
         except IntegrityError:
             raise ValidationError("Этот атрибут уже существует в этом продукте!")
 
     def delete(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут удалить продукты.')
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'message': 'Атрибут продукта успешно удален.'}, status=status.HTTP_200_OK)

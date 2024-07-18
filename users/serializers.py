@@ -5,6 +5,9 @@ from users.models import CustomUser
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
     class Meta:
         model = CustomUser
         fields = ('id', 'first_name', 'username', 'email', 'password')
@@ -49,14 +52,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "birth_date",
             "age"
         )
-
-
-class TokenObtainPairResponseSerializer(serializers.Serializer):
-    access = serializers.CharField()
-    refresh = serializers.CharField()
-
-    def create(self, validated_data):
-        raise NotImplementedError()
-
-    def update(self, instance, validated_data):
-        raise NotImplementedError()

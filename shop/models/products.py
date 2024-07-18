@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
 
+from shop.models.reviews import Review
+
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
@@ -22,7 +24,13 @@ class Product(models.Model):
             raise ValidationError(f"Продукт '{self.title}' уже существует")
         super(Product, self).save(*args, **kwargs)
 
-
+    def average_rating(self):
+        reviews = Review.objects.filter(product_id=self.id)
+        print(reviews)
+        total_rating = sum(review.rating for review in reviews)
+        if reviews.count() == 0:
+            return 0
+        return total_rating / reviews.count()
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes')
     attribute_name = models.CharField(help_text="Attribute Name", max_length=255)

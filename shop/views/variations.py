@@ -17,6 +17,8 @@ class ProductVariationsListCreateAPIView(ListCreateAPIView):
         return qs
 
     def perform_create(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError("только суперпользователи могут создавать варианты продукта")
         product_id = self.kwargs.get('product_id')
         try:
             product = Product.objects.get(pk=product_id)
@@ -39,12 +41,16 @@ class ProductVariationsUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         return qs if qs else None
 
     def perform_update(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError("только суперпользователи могут изменить варианты продукта")
         try:
             serializer.save()
         except IntegrityError:
             raise ValidationError({"colors": "Вариант продукта уже существует!"})
 
     def delete(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError("только суперпользователи могут создавать удалить варианты продукта")
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'message': 'Вариант продукта успешно удален.'}, status=status.HTTP_200_OK)

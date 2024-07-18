@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
@@ -10,6 +11,12 @@ class CategoryListCreateAPIView(ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+    def perform_create(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут создавать категория.')
+
+        serializer.save()
+
 
 class CategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
@@ -19,7 +26,15 @@ class CategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         qs = Category.objects.filter(id=self.kwargs.get('id'))
         return qs
 
+    def perform_update(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут изменить категории.')
+        serializer.save()
+
+
     def destroy(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут удалить категории.')
         obj = Category.objects.filter(id=self.kwargs.get('id'))
         if obj:
             self.perform_destroy(obj)

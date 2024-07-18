@@ -4,7 +4,7 @@ from shop.views.attributes import ProductAttributeView, ProductAttributeUpdateDe
 from shop.views.categories import CategoryListCreateAPIView, CategoryRetrieveUpdateDestroyAPIView
 from shop.views.colors import ProductColorListCreateAPIView, ProductColorUpdateDeleteAPIView
 from shop.views.images import ProductImageListCreateView, ProductImageGetUpdateDeleteView
-from shop.views.products import ProductListCreateView, ProductGetUpdateDeleteView
+from shop.views.products import ProductListCreateView, ProductGetUpdateDeleteView, ProductListView
 from shop.views.reviews import ReviewsListCreateAPIView, ReviewUpdateDeleteAPIView, CommentListCreateAPIView, \
     CommentUpdateDeleteAPIView, CommentLikeDislikeAPIView
 from shop.views.variations import ProductVariationsListCreateAPIView, ProductVariationsUpdateDeleteAPIView
@@ -15,7 +15,8 @@ urlpatterns = [
     path('categories/<int:id>/', CategoryRetrieveUpdateDestroyAPIView.as_view(), name='categories-list-update'),
 
     # Products
-    path('products/', ProductListCreateView.as_view(), name='product-list-create'),
+    path('products/', ProductListView.as_view(), name='products-list'),
+    path('<int:category_id>/products/', ProductListCreateView.as_view(), name='product-list-create'),
     path('products/<int:id>/', ProductGetUpdateDeleteView.as_view(), name='product-get-update-delete'),
 
     # Product Attributes

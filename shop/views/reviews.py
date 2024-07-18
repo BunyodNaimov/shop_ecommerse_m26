@@ -25,15 +25,20 @@ class ReviewsListCreateAPIView(ListCreateAPIView):
         return ReviewCreateSerializer
 
     def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise ValidationError("отзывы могут оставить те пользователи которые приобрели данный товар")
         product_id = self.kwargs.get('product_id')
-        try:
-            product = Product.objects.get(pk=product_id)
-        except Product.DoesNotExist:
-            raise ValidationError({'product': 'Неверный ID продукта.'})
-        try:
-            serializer.save(product=product, author=self.request.user)
-        except IntegrityError:
-            raise ValidationError({"reviews": "Вы уже оставили отзыв!"})
+        if self.request.user.is_authenticated:
+            try:
+                product = Product.objects.get(pk=product_id)
+            except Product.DoesNotExist:
+                raise ValidationError({'product': 'Неверный ID продукта.'})
+            try:
+                serializer.save(product=product, author=self.request.user)
+            except IntegrityError:
+                raise ValidationError({"reviews": "Вы уже оставили отзыв!"})
+        else:
+            raise ValidationError({"detail": "Authentication credentials were not provided."})
 
 
 class ReviewUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
@@ -52,7 +57,15 @@ class ReviewUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
             raise ValidationError({"reviews": "нет отзыва!"})
         return qs
 
+    def perform_update(self, serializer):
+        obj = self.get_object()
+        if self.request.user == obj.author:
+            serializer.save()
+        raise ValidationError("Вы не являетесь автором данного отзыва!")
+
     def delete(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError("Вам не разрешено удалять отзывы!")
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'message': 'Отзыв продукта успешно удален!.'}, status=status.HTTP_200_OK)
@@ -74,7 +87,10 @@ class CommentListCreateAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, pk=review_id)
-        serializer.save(review=review, author=self.request.user)
+        if self.request.user.is_authenticated:
+            serializer.save(review=review, author=self.request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        raise ValidationError({"detail": "Authentication credentials were not provided."})
 
 
 class CommentUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
@@ -87,7 +103,16 @@ class CommentUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         qs = Comment.objects.filter(review_id=review_id, id=comment_id)
         return qs
 
+    def perform_update(self, serializer):
+        obj = self.get_object()
+        if self.request.user == obj.author:
+            serializer.save()
+        raise ValidationError("Вы не являетесь автором данной комментарии!")
+
     def destroy(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError("Вам не разрешено удалять комментарии!")
+
         obj = get_object_or_404(Comment, pk=kwargs.get('comment_id'))
         self.perform_destroy(obj)
         return Response({"message": "Комментарии удалён!"}, status=status.HTTP_200_OK)

@@ -24,6 +24,8 @@ class ProductColorListCreateAPIView(ListCreateAPIView):
         return qs
 
     def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут создавать цвет продукта.')
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -59,12 +61,16 @@ class ProductColorUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
         return qs
 
     def perform_update(self, serializer):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут изменить цвет продукта.')
         try:
             serializer.save()
         except IntegrityError:
             raise ValidationError({"colors": "цвет продукта уже существует!"})
 
     def delete(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            raise ValidationError('Только суперпользователи могут удалить цвет продукта.')
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'message': 'Цвета продукта успешно удален!.'}, status=status.HTTP_200_OK)
