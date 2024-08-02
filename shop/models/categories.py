@@ -3,7 +3,7 @@ from sqlite3 import IntegrityError
 from django.db import models
 from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
-
+from unidecode import unidecode
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -15,8 +15,13 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        category = Category.objects.filter(slug=self.slug).first()
-        if category:
-            raise ValidationError(f"Категория '{self.name}' уже существует")
+        # Генерируем slug из названия категории
+        # Транслитерация названия категории в латиницу
+        self.slug = slugify(unidecode(self.name))
+
+        # Проверяем, существует ли категория с таким же slug и это не текущая категория
+        existing_category = Category.objects.filter(slug=self.slug).exclude(id=self.id).first()
+        if existing_category:
+            raise ValidationError(f"Категория с названием '{self.name}' уже существует.")
+
         super(Category, self).save(*args, **kwargs)

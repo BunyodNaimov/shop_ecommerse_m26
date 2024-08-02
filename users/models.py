@@ -12,7 +12,7 @@ class CustomUser(AbstractUser):
         unique=True,
         null=True,
         blank=True, )
-    email = models.EmailField(_("email address"), unique=True, null=True, blank=True)
+    email = models.EmailField(_("email address"), null=True, blank=True)
     phone = models.CharField(max_length=15, unique=True, null=True, validators=[phone_validator])
     profile_picture = models.ImageField(upload_to='profile_picture/', null=True, blank=True)
     address = models.CharField(max_length=256, null=True, blank=True)

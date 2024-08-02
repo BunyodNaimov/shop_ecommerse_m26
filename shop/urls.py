@@ -15,7 +15,7 @@ urlpatterns = [
     path('categories/<int:id>/', CategoryRetrieveUpdateDestroyAPIView.as_view(), name='categories-list-update'),
 
     # Products
-    path('products/', ProductListView.as_view(), name='products-list'),
+    path('all-products/', ProductListView.as_view(), name='products-list'),
     path('<int:category_id>/products/', ProductListCreateView.as_view(), name='product-list-create'),
     path('products/<int:id>/', ProductGetUpdateDeleteView.as_view(), name='product-get-update-delete'),
 
