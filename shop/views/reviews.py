@@ -59,9 +59,10 @@ class ReviewUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         obj = self.get_object()
-        if self.request.user == obj.author:
-            serializer.save()
-        raise ValidationError("Вы не являетесь автором данного отзыва!")
+
+        if self.request.user != obj.author:
+            raise ValidationError("Вы не являетесь автором данного отзыва!")
+        serializer.save()
 
     def delete(self, request, *args, **kwargs):
         if not self.request.user.is_superuser:
@@ -105,9 +106,9 @@ class CommentUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         obj = self.get_object()
-        if self.request.user == obj.author:
-            serializer.save()
-        raise ValidationError("Вы не являетесь автором данной комментарии!")
+        if self.request.user != obj.author:
+            raise ValidationError("Вы не являетесь автором данной комментарии!")
+        serializer.save()
 
     def destroy(self, request, *args, **kwargs):
         if not self.request.user.is_superuser:

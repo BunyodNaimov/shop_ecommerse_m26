@@ -1,9 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import permission_classes
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, \
-    CreateAPIView
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
 from rest_framework.response import Response
 
 from shop.models.categories import Category
@@ -48,7 +45,7 @@ class ProductGetUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         if not self.request.user.is_superuser:
             raise ValidationError('Только суперпользователи могут изменить продукты.')
-        serializer.save(category=self.get_object())
+        serializer.save()
 
     def destroy(self, request, *args, **kwargs):
         if not self.request.user.is_superuser:

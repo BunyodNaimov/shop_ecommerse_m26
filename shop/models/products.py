@@ -3,6 +3,7 @@ from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
 
 from shop.models.reviews import Review
+from shop.utils import custom_slugify
 
 
 class Product(models.Model):
@@ -18,8 +19,8 @@ class Product(models.Model):
         return f"{self.title} - {self.price}"
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
-        product = Product.objects.filter(slug=self.slug).first()
+        self.slug = custom_slugify(self.title)
+        product = Product.objects.filter(slug=self.slug).exclude(id=self.id).first()
         if product:
             raise ValidationError(f"Продукт '{self.title}' уже существует")
         super(Product, self).save(*args, **kwargs)
@@ -31,6 +32,8 @@ class Product(models.Model):
         if reviews.count() == 0:
             return 0
         return total_rating / reviews.count()
+
+
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes')
     attribute_name = models.CharField(help_text="Attribute Name", max_length=255)

@@ -5,6 +5,9 @@ from django.utils.text import slugify
 from rest_framework.exceptions import ValidationError
 from unidecode import unidecode
 
+from shop.utils import custom_slugify
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -16,8 +19,7 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         # Генерируем slug из названия категории
-        # Транслитерация названия категории в латиницу
-        self.slug = slugify(unidecode(self.name))
+        self.slug = custom_slugify(self.name)
 
         # Проверяем, существует ли категория с таким же slug и это не текущая категория
         existing_category = Category.objects.filter(slug=self.slug).exclude(id=self.id).first()

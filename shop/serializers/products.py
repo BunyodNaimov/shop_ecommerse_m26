@@ -12,7 +12,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ("id", "title", 'description', "price", "average_rating", 'category')
+        fields = ("id", "title", 'description', "price", "quantity", "average_rating", 'category')
         read_only_fields = ("id", "average_rating", "category")
 
     @extend_schema_field(OpenApiTypes.FLOAT)
