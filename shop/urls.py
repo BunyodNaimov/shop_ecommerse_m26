@@ -4,6 +4,8 @@ from shop.views.attributes import ProductAttributeView, ProductAttributeUpdateDe
 from shop.views.categories import CategoryListCreateAPIView, CategoryRetrieveUpdateDestroyAPIView
 from shop.views.colors import ProductColorListCreateAPIView, ProductColorUpdateDeleteAPIView
 from shop.views.images import ProductImageListCreateView, ProductImageGetUpdateDeleteView
+from shop.views.orders import AddToBasketAPIView, BasketListAPIView, RemoveFromBasketAPIView, ListCreateOrderAPIView, \
+    OrderCancelAPIView
 from shop.views.products import ProductListCreateView, ProductGetUpdateDeleteView, ProductListView
 from shop.views.reviews import ReviewsListCreateAPIView, ReviewUpdateDeleteAPIView, CommentListCreateAPIView, \
     CommentUpdateDeleteAPIView, CommentLikeDislikeAPIView
@@ -51,5 +53,13 @@ urlpatterns = [
          name='product-variations-list-create'),
     path('products/<int:product_id>/variations/<int:variation_id>', ProductVariationsUpdateDeleteAPIView.as_view(),
          name='product-variations-get-update-delete'),
+    # path('orders', OrderListCreateAPIView.as_view(), name='orders-list-create'),
+
+    # Orders
+    path('baskets/add-to-basket/<int:product_id>', AddToBasketAPIView.as_view(), name="add-to-card"),
+    path('baskets/<int:product_id>', RemoveFromBasketAPIView.as_view(), name="basket-remove"),
+    path('baskets/', BasketListAPIView.as_view(), name="basket-list"),
+    path('order-list-create/', ListCreateOrderAPIView.as_view(), name="create-list-order"),
+    path('order-cancellation/<int:order_id>', OrderCancelAPIView.as_view(), name="cancel-order"),
 
 ]

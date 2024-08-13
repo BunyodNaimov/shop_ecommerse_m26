@@ -27,7 +27,6 @@ class Product(models.Model):
 
     def average_rating(self):
         reviews = Review.objects.filter(product_id=self.id)
-        print(reviews)
         total_rating = sum(review.rating for review in reviews)
         if reviews.count() == 0:
             return 0
